@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.ai.azure.com/mmi/2025-11-01/labels.json",
+  "fileId": "",
+  "fieldLabels": {
+    "letterhead_present": {
+      "type": "boolean",
+      "valueBoolean": true,
+      "kind": "corrected"
+    },
+    "letterhead_company": {
+      "type": "string",
+      "valueString": "Departamento Administrativo de la Funcion Publica",
+      "kind": "corrected"
+    },
+    "visual_consistency": {
+      "type": "string",
+      "valueString": "consistent",
+      "kind": "corrected"
+    },
+    "visual_findings": {
+      "type": "string",
+      "valueString": "Official Funcion Publica guidance with institutional crest, versioning, structured sections, and footer contact information.",
+      "kind": "corrected"
+    }
+  },
+  "metadata": {
+    "displayName": "funcion-publica-firma-digital.pdf",
+    "mimeType": "application/pdf"
+  }
+}

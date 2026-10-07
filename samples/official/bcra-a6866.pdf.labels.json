@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.ai.azure.com/mmi/2025-11-01/labels.json",
+  "fileId": "",
+  "fieldLabels": {
+    "letterhead_present": {
+      "type": "boolean",
+      "valueBoolean": true,
+      "kind": "corrected"
+    },
+    "letterhead_company": {
+      "type": "string",
+      "valueString": "Banco Central de la Republica Argentina",
+      "kind": "corrected"
+    },
+    "visual_consistency": {
+      "type": "string",
+      "valueString": "consistent",
+      "kind": "corrected"
+    },
+    "visual_findings": {
+      "type": "string",
+      "valueString": "Official BCRA communication with institutional seal, communication number, date, recipients, signatory names, and regulatory annexes.",
+      "kind": "corrected"
+    }
+  },
+  "metadata": {
+    "displayName": "bcra-a6866.pdf",
+    "mimeType": "application/pdf"
+  }
+}

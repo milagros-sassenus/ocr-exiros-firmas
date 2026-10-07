@@ -1,0 +1,39 @@
+{
+  "01_banco_completo_firma_membrete.pdf": {
+    "handwritten_signature_present": true,
+    "letterhead_present": true,
+    "visual_consistency": "consistent",
+    "review_required": true
+  },
+  "02_banco_sin_firma.pdf": {
+    "handwritten_signature_present": false,
+    "letterhead_present": true,
+    "visual_consistency": "consistent",
+    "review_required": true
+  },
+  "03_carta_firmada_sin_membrete.pdf": {
+    "handwritten_signature_present": true,
+    "letterhead_present": false,
+    "visual_consistency": "consistent",
+    "review_required": true
+  },
+  "04_constancia_fiscal_word_sospechosa.pdf": {
+    "handwritten_signature_present": false,
+    "letterhead_present": false,
+    "visual_consistency": "suspicious",
+    "review_required": true
+  },
+  "05_banco_marcas_inconsistentes.pdf": {
+    "handwritten_signature_present": true,
+    "letterhead_present": true,
+    "visual_consistency": "suspicious",
+    "review_required": true
+  },
+  "06_carta_solo_firma_electronica.pdf": {
+    "handwritten_signature_present": false,
+    "letterhead_present": true,
+    "signature_type": "electronic",
+    "visual_consistency": "consistent",
+    "review_required": true
+  }
+}
