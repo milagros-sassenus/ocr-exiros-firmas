@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.ai.azure.com/mmi/2025-11-01/labels.json",
+  "fileId": "",
+  "fieldLabels": {
+    "letterhead_present": {
+      "type": "boolean",
+      "valueBoolean": true,
+      "kind": "corrected"
+    },
+    "letterhead_company": {
+      "type": "string",
+      "valueString": "ARCA",
+      "kind": "corrected"
+    },
+    "visual_consistency": {
+      "type": "string",
+      "valueString": "consistent",
+      "kind": "corrected"
+    },
+    "visual_findings": {
+      "type": "string",
+      "valueString": "Official ARCA guide with consistent institutional branding, navigation, screenshots, and page numbering.",
+      "kind": "corrected"
+    }
+  },
+  "metadata": {
+    "displayName": "arca-guia-cuit.pdf",
+    "mimeType": "application/pdf"
+  }
+}

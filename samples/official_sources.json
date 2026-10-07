@@ -1,0 +1,58 @@
+[
+  {
+    "filename": "arca-guia-cuit.pdf",
+    "organization": "ARCA",
+    "country": "Argentina",
+    "title": "Como obtener la CUIT e inscribirse en monotributo promovido",
+    "url": "https://www.arca.gob.ar/guias/paso-a-paso/obtener-cuit-inscripcon-monotributo.pdf",
+    "pages": 19,
+    "sha256": "f50b24908c0b5fcc6ccfd50a2a66020f10c931034f73d66fcd66f663b220f442",
+    "test_focus": [
+      "official_branding",
+      "tax_document_visual_language",
+      "no_handwritten_signature"
+    ]
+  },
+  {
+    "filename": "afip-f460f.pdf",
+    "organization": "AFIP",
+    "country": "Argentina",
+    "title": "Formulario F. 460/F en blanco",
+    "url": "https://servicioscf.afip.gob.ar/formularios-api/api/formulario-lob/obtener?id=2426&titulo=F460/F",
+    "pages": 4,
+    "sha256": "8260860cac35d43cdc13d206035fbbd9d6b716638d4da2beca08f749fbe0cc7f",
+    "test_focus": [
+      "official_blank_form",
+      "tax_document_visual_language",
+      "no_handwritten_signature"
+    ]
+  },
+  {
+    "filename": "bcra-a6866.pdf",
+    "organization": "Banco Central de la Republica Argentina",
+    "country": "Argentina",
+    "title": "Comunicacion A 6866",
+    "url": "https://www.bcra.gob.ar/archivos/Pdfs/comytexord/A6866.pdf",
+    "pages": 57,
+    "sha256": "c1f5e396cce467cee385e228623d7da040aa3501534dfac6fc4fd8d6fb00b194",
+    "test_focus": [
+      "official_letterhead",
+      "long_document",
+      "regulatory_layout"
+    ]
+  },
+  {
+    "filename": "funcion-publica-firma-digital.pdf",
+    "organization": "Departamento Administrativo de la Funcion Publica",
+    "country": "Colombia",
+    "title": "Lineamientos para el uso de firma digital",
+    "url": "https://www1.funcionpublica.gov.co/documents/34645357/34703150/lineamientos-firma-digital.png.pdf/ea5233aa-c887-54b4-538b-005f429e2e63",
+    "pages": 13,
+    "sha256": "86b89a7e7fc4da19be9c4dc2a55533bb0c9887b6125cef8d15e9d0fb3acb96a7",
+    "test_focus": [
+      "official_letterhead",
+      "digital_signature_guidance",
+      "no_handwritten_signature"
+    ]
+  }
+]

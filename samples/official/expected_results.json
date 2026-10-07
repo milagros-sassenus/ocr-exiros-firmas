@@ -1,0 +1,18 @@
+{
+  "afip-f460f.pdf": {
+    "letterhead_present": true,
+    "visual_consistency": "consistent"
+  },
+  "arca-guia-cuit.pdf": {
+    "letterhead_present": true,
+    "visual_consistency": "consistent"
+  },
+  "bcra-a6866.pdf": {
+    "letterhead_present": true,
+    "visual_consistency": "consistent"
+  },
+  "funcion-publica-firma-digital.pdf": {
+    "letterhead_present": true,
+    "visual_consistency": "consistent"
+  }
+}

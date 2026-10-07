@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.ai.azure.com/mmi/2025-11-01/labels.json",
+  "fileId": "",
+  "fieldLabels": {
+    "letterhead_present": {
+      "type": "boolean",
+      "valueBoolean": true,
+      "kind": "corrected"
+    },
+    "letterhead_company": {
+      "type": "string",
+      "valueString": "ARCA",
+      "kind": "corrected"
+    },
+    "visual_consistency": {
+      "type": "string",
+      "valueString": "consistent",
+      "kind": "corrected"
+    },
+    "visual_findings": {
+      "type": "string",
+      "valueString": "Official ARCA F.460/F form with institutional branding, standardized sections, tables, and declaration areas.",
+      "kind": "corrected"
+    }
+  },
+  "metadata": {
+    "displayName": "afip-f460f.pdf",
+    "mimeType": "application/pdf"
+  }
+}
