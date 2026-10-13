@@ -235,41 +235,34 @@ def main() -> None:
 
     expectations = {
         "01_banco_completo_firma_membrete.pdf": {
-            "handwritten_signature_present": True,
+            "signature_present": True,
             "letterhead_present": True,
-            "visual_consistency": "consistent",
-            "review_required": True,
+            "visual_authenticity": "suspicious",
         },
         "02_banco_sin_firma.pdf": {
-            "handwritten_signature_present": False,
+            "signature_present": False,
             "letterhead_present": True,
-            "visual_consistency": "consistent",
-            "review_required": True,
+            "visual_authenticity": "suspicious",
         },
         "03_carta_firmada_sin_membrete.pdf": {
-            "handwritten_signature_present": True,
+            "signature_present": True,
             "letterhead_present": False,
-            "visual_consistency": "consistent",
-            "review_required": True,
+            "visual_authenticity": "suspicious",
         },
         "04_constancia_fiscal_word_sospechosa.pdf": {
-            "handwritten_signature_present": False,
+            "signature_present": False,
             "letterhead_present": False,
-            "visual_consistency": "suspicious",
-            "review_required": True,
+            "visual_authenticity": "suspicious",
         },
         "05_banco_marcas_inconsistentes.pdf": {
-            "handwritten_signature_present": True,
+            "signature_present": True,
             "letterhead_present": True,
-            "visual_consistency": "suspicious",
-            "review_required": True,
+            "visual_authenticity": "suspicious",
         },
         "06_carta_solo_firma_electronica.pdf": {
-            "handwritten_signature_present": False,
+            "signature_present": True,
             "letterhead_present": True,
-            "signature_type": "electronic",
-            "visual_consistency": "consistent",
-            "review_required": True,
+            "visual_authenticity": "suspicious",
         },
     }
     (OUTPUT_DIRECTORY / "expected_results.json").write_text(

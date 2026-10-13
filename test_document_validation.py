@@ -1,163 +1,136 @@
+import tempfile
 import unittest
-from unittest.mock import patch
-
-from azure.ai.contentunderstanding.models import BooleanField, StringField
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from document_validation import (
-    _field_to_dict,
-    _knowledge_sources,
-    _review_required,
-    _signature_type,
+    DocumentAssessment,
+    _build_input,
+    _openai_base_url,
+    analyze_document,
 )
-from samples.evaluate_samples import compare_fields, summarize
+from samples.evaluate_samples import compare_result, summarize
 
 
-class FieldFormattingTests(unittest.TestCase):
-    def test_includes_available_evidence(self) -> None:
-        field = StringField(
-            type="string",
-            field_type="string",
-            value_string="visible signature on page 1",
-            confidence=0.91,
-            source="D(1,0.1,0.2,0.3,0.4)",
-        )
-
+class EndpointTests(unittest.TestCase):
+    def test_adds_openai_v1_path(self) -> None:
         self.assertEqual(
-            _field_to_dict(field),
-            {
-                "value": "visible signature on page 1",
-                "confidence": 0.91,
-                "source": "D(1,0.1,0.2,0.3,0.4)",
-            },
+            _openai_base_url("https://example.openai.azure.com"),
+            "https://example.openai.azure.com/openai/v1/",
         )
 
-    def test_omits_unavailable_optional_evidence(self) -> None:
-        field = BooleanField(
-            type="boolean",
-            field_type="boolean",
-            value_boolean=True,
+    def test_preserves_complete_openai_v1_path(self) -> None:
+        self.assertEqual(
+            _openai_base_url("https://example.openai.azure.com/openai/v1/"),
+            "https://example.openai.azure.com/openai/v1/",
         )
 
-        self.assertEqual(_field_to_dict(field), {"value": True})
+
+class InputTests(unittest.TestCase):
+    def test_distinguishes_user_approved_references_and_target(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            document_path = Path(temporary_directory) / "target.pdf"
+            document_path.write_bytes(b"target")
+            request_input = _build_input(
+                document_path,
+                references=[("approved.pdf", b"reference")],
+                page_images=[b"image"],
+            )
+
+        content = request_input[0]["content"]
+        self.assertIn("user-approved real", content[0]["text"])
+        self.assertIn("USER-APPROVED POSITIVE REFERENCE", content[1]["text"])
+        self.assertEqual(content[2]["filename"], "approved.pdf")
+        self.assertIn("TARGET DOCUMENT: target.pdf", content[3]["text"])
+        self.assertEqual(content[4]["filename"], "target.pdf")
+        self.assertEqual(content[6]["type"], "input_image")
+        self.assertEqual(content[6]["detail"], "high")
+
+    def test_rejects_combined_input_over_limit(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            document_path = Path(temporary_directory) / "target.pdf"
+            document_path.write_bytes(b"target")
+            with patch("document_validation.MAX_INPUT_BYTES", 10):
+                with self.assertRaisesRegex(ValueError, "total less than 50 MB"):
+                    _build_input(
+                        document_path,
+                        references=[("approved.pdf", b"reference")],
+                        page_images=[b"image"],
+                    )
 
 
-class SignatureTypeTests(unittest.TestCase):
-    def test_combines_known_signature_signals(self) -> None:
-        self.assertEqual(_signature_type(True, True), "both")
-        self.assertEqual(_signature_type(True, False), "handwritten")
-        self.assertEqual(_signature_type(False, True), "electronic")
-        self.assertEqual(_signature_type(False, False), "none")
+class AnalyzeDocumentTests(unittest.TestCase):
+    def test_returns_required_assessment(self) -> None:
+        assessment = DocumentAssessment(
+            signature_present=True,
+            letterhead_present=True,
+            document_type="bank certificate",
+            visual_authenticity="consistent",
+            visual_findings="Expected branding and structure are present.",
+        )
+        client = Mock()
+        client.responses.parse.return_value = SimpleNamespace(
+            output_parsed=assessment
+        )
 
-    def test_preserves_unknown_electronic_signature_signal(self) -> None:
-        self.assertEqual(_signature_type(False, None), "inconclusive")
-
-
-class ReviewDecisionTests(unittest.TestCase):
-    def test_requires_review_when_a_required_signal_is_missing(self) -> None:
-        fields = {
-            "document_type": {"value": "compliance_letter"},
-            "signature_type": {"value": "handwritten"},
-            "letterhead_present": {"value": False},
-            "visual_consistency": {"value": "consistent"},
-        }
-
-        self.assertTrue(_review_required(fields))
-
-    def test_does_not_require_review_when_visual_signals_pass(self) -> None:
-        fields = {
-            "document_type": {"value": "bank_certificate"},
-            "signature_type": {"value": "handwritten"},
-            "letterhead_present": {"value": True},
-            "visual_consistency": {"value": "consistent"},
-        }
-
-        self.assertFalse(_review_required(fields))
-
-
-class KnowledgeSourceTests(unittest.TestCase):
-    def test_builds_labeled_source_from_environment(self) -> None:
-        with patch.dict(
-            "os.environ",
-            {
-                "CONTENTUNDERSTANDING_TRAINING_DATA_SAS_URL": (
-                    "https://example.blob.core.windows.net/official?sig=test"
-                ),
-                "CONTENTUNDERSTANDING_TRAINING_DATA_PREFIX": "golden",
-            },
-            clear=True,
-        ):
-            source = _knowledge_sources()[0].as_dict()
-
-        self.assertEqual(source["kind"], "labeledData")
-        self.assertEqual(source["prefix"], "golden")
-        self.assertEqual(source["fileListPath"], "")
-
-    def test_requires_training_data_to_create_analyzer(self) -> None:
-        with patch.dict("os.environ", {}, clear=True):
-            with self.assertRaisesRegex(
-                RuntimeError,
-                "CONTENTUNDERSTANDING_TRAINING_DATA_SAS_URL",
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            document_path = Path(temporary_directory) / "target.pdf"
+            document_path.write_bytes(b"target")
+            with patch.dict(
+                "os.environ",
+                {"AZURE_OPENAI_DEPLOYMENT": "test-model"},
+                clear=False,
+            ), patch(
+                "document_validation._render_pdf_pages",
+                return_value=[b"image"],
             ):
-                _knowledge_sources()
+                result = analyze_document(
+                    client,
+                    document_path,
+                    references=[("approved.pdf", b"reference")],
+                )
+
+        self.assertTrue(result["signature_present"])
+        self.assertTrue(result["letterhead_present"])
+        self.assertEqual(result["visual_authenticity"], "consistent")
+        self.assertEqual(result["reference_files"], ["approved.pdf"])
+        client.responses.parse.assert_called_once()
 
 
 class SampleEvaluationTests(unittest.TestCase):
-    def test_compares_only_labeled_fields(self) -> None:
-        comparisons = compare_fields(
+    def test_compares_all_labeled_fields(self) -> None:
+        comparison = compare_result(
             {
-                "handwritten_signature_present": {"value": False},
-                "letterhead_present": {"value": True},
-                "unlabeled_field": {"value": "ignored"},
-            },
-            {
-                "handwritten_signature_present": False,
+                "signature_present": True,
                 "letterhead_present": True,
+                "visual_authenticity": "suspicious",
             },
-        )
-
-        self.assertEqual(
-            comparisons,
             {
-                "handwritten_signature_present": {
-                    "expected": False,
-                    "actual": False,
-                    "matches": True,
-                },
-                "letterhead_present": {
-                    "expected": True,
-                    "actual": True,
-                    "matches": True,
-                },
+                "signature_present": True,
+                "letterhead_present": True,
+                "visual_authenticity": "suspicious",
             },
         )
 
-    def test_summarizes_case_and_field_accuracy(self) -> None:
+        self.assertTrue(comparison["matches"])
+        self.assertEqual(comparison["fields"]["letterhead_present"]["actual"], True)
+
+    def test_summarizes_accuracy(self) -> None:
         summary = summarize(
             [
-                {
-                    "comparisons": {
-                        "signature": {"matches": True},
-                        "letterhead": {"matches": True},
-                    }
-                },
-                {
-                    "comparisons": {
-                        "signature": {"matches": False},
-                        "letterhead": {"matches": True},
-                    }
-                },
+                {"comparison": {"matches": True}},
+                {"comparison": {"matches": False}},
             ]
         )
 
-        self.assertEqual(summary["passed_cases"], 1)
-        self.assertEqual(summary["case_accuracy"], 0.5)
         self.assertEqual(
-            summary["field_metrics"]["signature"],
-            {"correct": 1, "evaluated": 2, "accuracy": 0.5},
-        )
-        self.assertEqual(
-            summary["field_metrics"]["letterhead"],
-            {"correct": 2, "evaluated": 2, "accuracy": 1.0},
+            summary,
+            {
+                "total_cases": 2,
+                "passed_cases": 1,
+                "accuracy": 0.5,
+            },
         )
 
 

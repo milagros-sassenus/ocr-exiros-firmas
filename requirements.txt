@@ -1,4 +1,6 @@
-azure-ai-contentunderstanding==1.1.0
 azure-identity==1.25.1
+azure-storage-blob==12.27.1
+openai==2.6.1
+pydantic==2.12.3
 pymupdf==1.28.2
 streamlit==1.50.0
