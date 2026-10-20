@@ -95,7 +95,31 @@ class AnalyzeDocumentTests(unittest.TestCase):
         self.assertTrue(result["letterhead_present"])
         self.assertEqual(result["visual_authenticity"], "consistent")
         self.assertEqual(result["reference_files"], ["approved.pdf"])
+        self.assertEqual(result["model_deployment"], "test-model")
         client.responses.parse.assert_called_once()
+        self.assertEqual(client.responses.parse.call_args.kwargs["model"], "test-model")
+
+    def test_requires_explicit_deployment(self) -> None:
+        for deployment in (None, "", "   "):
+            with self.subTest(deployment=deployment):
+                client = Mock()
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    document_path = Path(temporary_directory) / "target.pdf"
+                    document_path.write_bytes(b"target")
+                    environment = (
+                        {} if deployment is None
+                        else {"AZURE_OPENAI_DEPLOYMENT": deployment}
+                    )
+                    with patch.dict("os.environ", environment, clear=True):
+                        with self.assertRaisesRegex(
+                            RuntimeError, "Set AZURE_OPENAI_DEPLOYMENT"
+                        ):
+                            analyze_document(
+                                client,
+                                document_path,
+                                references=[("approved.pdf", b"reference")],
+                            )
+                client.responses.parse.assert_not_called()
 
 
 class SampleEvaluationTests(unittest.TestCase):

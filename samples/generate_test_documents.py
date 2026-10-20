@@ -200,7 +200,7 @@ def create_mismatched_brands() -> None:
 
 def create_electronic_signature_only() -> None:
     document, page = _new_document("Caso 06: firma electronica, sin manuscrita")
-    _letterhead(page, "Empresa DEMO", "Programa de proveedores", (0.3, 0.3, 0.3))
+    _letterhead(page, "EMPRESA DEMO", "Programa de proveedores", (0.3, 0.3, 0.3))
     _body(
         page,
         "CARTA DE CUMPLIMIENTO",

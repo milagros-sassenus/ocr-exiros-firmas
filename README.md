@@ -19,8 +19,8 @@ concretas; `suspicious` e `inconclusive` requieren revision manual.
 1. Descarga los PDFs reales aprobados por el usuario desde un contenedor Blob
    privado.
 2. Renderiza el documento objetivo en alta resolucion, sin ejecutar OCR local.
-3. Envia las referencias aprobadas, el PDF objetivo y sus paginas a
-   `your-multimodal-deployment`.
+3. Envia las referencias aprobadas, el PDF objetivo y sus paginas al deployment
+   multimodal de Azure OpenAI configurado por el usuario.
 4. Structured Outputs devuelve:
    - `signature_present`;
    - `letterhead_present`;
@@ -35,21 +35,57 @@ visual suficiente.
 
 ## Configuracion
 
+En Windows con Git Bash o MSYS2/UCRT64:
+
+```bash
+python -m venv .venv
+source .venv/Scripts/activate
+```
+
+En Linux o macOS:
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+```
+
+Si `.venv` ya existe, omitir su creacion y ejecutar solo la activacion
+correspondiente al sistema operativo.
+
+Con el entorno activado:
+
+```bash
+python -m pip install -r requirements.txt
 az login
 
-export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com"
-export AZURE_OPENAI_DEPLOYMENT="your-multimodal-deployment"
-export APPROVED_REFERENCE_BLOB_CONTAINER_URL="https://your-storage-account.blob.core.windows.net/approved-document-references"
+export AZURE_OPENAI_ENDPOINT="https://<tu-recurso>.openai.azure.com"
+export AZURE_OPENAI_DEPLOYMENT="<tu-deployment-multimodal>"
+export APPROVED_REFERENCE_BLOB_CONTAINER_URL="https://<tu-cuenta>.blob.core.windows.net/<tu-contenedor>"
+```
+
+Reemplazar los valores de ejemplo por recursos propios. Las tres variables son
+obligatorias. El deployment debe admitir PDFs, imagenes y Structured Outputs.
+La autenticacion usa `DefaultAzureCredential` (por ejemplo, `az login`); para
+Azure OpenAI tambien se puede configurar `AZURE_OPENAI_API_KEY` en el entorno.
+El acceso al contenedor privado siempre usa `DefaultAzureCredential`.
+
+No guardar claves, tokens, URLs con SAS ni documentos reales en el repositorio.
+Los archivos `.env` y la configuracion local de Streamlit se excluyen de Git;
+la aplicacion no carga archivos `.env` automaticamente.
+
+Si guardas tu configuracion en `.env.local`, cargarla en Git Bash o MSYS2/UCRT64
+antes de iniciar la aplicacion:
+
+```bash
+set -a
+source .env.local
+set +a
 ```
 
 ## Frontend
 
 ```bash
-streamlit run app.py
+python -m streamlit run app.py
 ```
 
 Abrir `http://localhost:8501`, cargar un PDF y seleccionar **Analizar
@@ -67,8 +103,8 @@ Salida:
 ```json
 {
   "file": "ejemplo.pdf",
-  "model_deployment": "your-multimodal-deployment",
-  "reference_files": ["bank-certification-example-company.pdf"],
+  "model_deployment": "mi-deployment-multimodal",
+  "reference_files": ["referencia-bancaria-ejemplo.pdf"],
   "signature_present": true,
   "letterhead_present": true,
   "document_type": "constancia de inscripcion fiscal",
@@ -86,3 +122,10 @@ python samples/evaluate_samples.py --output evaluation.json
 
 El conjunto sintetico contiene casos con firma manuscrita, firma electronica,
 sin firma, sin membrete y con inconsistencias visuales deliberadas.
+
+## Antes de publicar
+
+Revisar tambien el historial de Git: reemplazar datos en la version actual no
+los elimina de commits anteriores. Si hubo credenciales expuestas, revocarlas o
+rotarlas; borrar el historial no invalida una credencial.
+No publicar PDFs reales ni resultados de analisis con datos personales.

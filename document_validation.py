@@ -11,7 +11,6 @@ from azure.storage.blob import ContainerClient
 from openai import OpenAI
 from pydantic import BaseModel
 
-DEFAULT_DEPLOYMENT = "your-multimodal-deployment"
 MAX_INPUT_BYTES = 50 * 1024 * 1024
 MAX_PAGES = 50
 
@@ -197,6 +196,12 @@ def analyze_document(
     if document_path.suffix.lower() != ".pdf":
         raise ValueError("Only PDF documents are supported.")
 
+    deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+    if not deployment or not deployment.strip():
+        raise RuntimeError(
+            "Set AZURE_OPENAI_DEPLOYMENT to your multimodal model deployment."
+        )
+
     if references is None:
         container_url = os.getenv("APPROVED_REFERENCE_BLOB_CONTAINER_URL")
         if not container_url:
@@ -206,7 +211,6 @@ def analyze_document(
             )
         references = _load_reference_pdfs(container_url)
 
-    deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT", DEFAULT_DEPLOYMENT)
     response = client.responses.parse(
         model=deployment,
         instructions=SYSTEM_PROMPT,

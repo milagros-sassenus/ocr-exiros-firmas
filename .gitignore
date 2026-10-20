@@ -2,4 +2,7 @@
 __pycache__/
 *.py[cod]
 .streamlit/
+.env
+.env.*
+!.env.example
 samples/official/*.pdf

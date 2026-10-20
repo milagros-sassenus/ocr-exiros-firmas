@@ -87,6 +87,13 @@ def main() -> None:
             "la aplicacion."
         )
         st.stop()
+    deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+    if not deployment or not deployment.strip():
+        st.error(
+            "Falta AZURE_OPENAI_DEPLOYMENT. Configura el deployment multimodal "
+            "y reinicia la aplicacion."
+        )
+        st.stop()
     if not os.getenv("APPROVED_REFERENCE_BLOB_CONTAINER_URL"):
         st.error(
             "Falta APPROVED_REFERENCE_BLOB_CONTAINER_URL. Configura el "
